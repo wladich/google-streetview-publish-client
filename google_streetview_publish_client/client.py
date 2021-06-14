@@ -104,3 +104,8 @@ def upload_panorama(path):
     print(5)
     assert photo_id
     return photo_id
+
+
+def delete_panorama(panorama_id):
+    client = get_client()
+    client.delete_photo(panorama_id)

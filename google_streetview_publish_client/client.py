@@ -66,7 +66,6 @@ def check_image_tags(tags):
 
 
 def upload_panorama(path):
-    print(0)
     exif_tags = get_image_tags(path)
     check_image_tags(exif_tags)
     latitude_sign = {'N': 1, 'S': -1}[exif_tags['GPSLatitudeRef']]
@@ -77,11 +76,8 @@ def upload_panorama(path):
     d = datetime.datetime.strptime(exif_tags['GPSDateTime'], '%Y:%m:%d %H:%M:%SZ')
     d = d.replace(tzinfo=datetime.timezone(datetime.timedelta()))
     timestamp = d.timestamp()
-    print(1)
     client = get_client()
-    print(2)
     upload_ref = client.start_upload()
-    print(3)
     with open(path, 'rb') as f:
         image_data = f.read()
     headers = {
@@ -92,7 +88,6 @@ def upload_panorama(path):
     }
     response = requests.post(upload_ref.upload_url, data=image_data, headers=headers)
     assert response.status_code == 200
-    print(4)
     photo = resources_pb2.Photo()
     photo.upload_reference.upload_url = upload_ref.upload_url
     photo.capture_time.seconds = int(timestamp)
@@ -101,7 +96,6 @@ def upload_panorama(path):
     photo.pose.lat_lng_pair.longitude = longitude
     create_photo_response = client.create_photo(photo)
     photo_id = create_photo_response.photo_id.id
-    print(5)
     assert photo_id
     return photo_id
 

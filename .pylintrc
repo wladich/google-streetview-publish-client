@@ -1,13 +1,15 @@
 [MASTER]
 ; ignore=
-; extension-pkg-whitelist=
+extension-pkg-whitelist=pydantic
+load-plugins =
+    pylint_pydantic,
 
 [FORMAT]
 # Maximum number of characters on a single line.
 max-line-length=97
 
 [BASIC]
-; good-names=f, i
+good-names=f, dt
 ; generated-members=
 
 [MESSAGES CONTROL]
@@ -17,6 +19,7 @@ disable=
     missing-class-docstring,
     consider-using-f-string,
     consider-using-max-builtin,
+    too-few-public-methods,
 
 enable=
    useless-suppression,

@@ -22,13 +22,13 @@ help:
 	@echo "$$help"
 
 pylint:
-	pylint ./*.py
+	pylint ./*.py google_streetview_publish_client stubs
 
 black:
-	black --diff --check -q ./*.py
+	black --diff --check -q .
 
 flake8:
-	flake8 *.py
+	flake8 .
 
 mypy:
 	mypy .

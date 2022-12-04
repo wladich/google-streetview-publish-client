@@ -22,7 +22,7 @@ help:
 	@echo "$$help"
 
 pylint:
-	pylint ./*.py google_streetview_publish_client stubs
+	pylint . --recursive y
 
 black:
 	black --diff --check -q .

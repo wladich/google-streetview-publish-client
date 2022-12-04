@@ -1,5 +1,6 @@
 [MASTER]
 ; ignore=
+ignore-patterns=^venv$
 extension-pkg-whitelist=pydantic
 load-plugins =
     pylint_pydantic,

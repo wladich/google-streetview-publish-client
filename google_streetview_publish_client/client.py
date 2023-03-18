@@ -131,7 +131,6 @@ def get_client() -> StreetViewPublishServiceClient:
 
 def get_image_tags(image_path: str) -> ExifTagsRequiredForUpload:
     res = subprocess.check_output(["exiftool", "-json", "--printConv", image_path])
-    print(res)
     return ExiftoolOutputTags(raw_data=res).tags
 
 

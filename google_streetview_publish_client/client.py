@@ -26,7 +26,7 @@ class ExifTagsRequiredForUpload(pydantic.BaseModel):
         ge = 0
         le = 180
 
-    class Azimuth(pydantic.StrictFloat):
+    class Azimuth(pydantic.ConstrainedFloat):
         ge = 0
         le = 360
 

@@ -1,5 +1,6 @@
 import datetime
 import functools
+import math
 import os
 import subprocess
 from typing import Literal, cast
@@ -19,11 +20,13 @@ CREDENTIALS_FILE = os.path.expanduser("~/.config/StreetViewUploader.json")
 
 class ExifTagsRequiredForUpload(pydantic.BaseModel):
     class Latitude(pydantic.StrictFloat):
-        ge = 0
+        # per standard Latitude and Longitude should be positive, but for some reason
+        # exiftool returns negative numbers for western and southern hemispheres
+        ge = -90
         le = 90
 
     class Longitude(pydantic.StrictFloat):
-        ge = 0
+        ge = -180
         le = 180
 
     class Azimuth(pydantic.ConstrainedFloat):
@@ -92,6 +95,21 @@ class ExiftoolOutputTags(pydantic.BaseModel):
     ) -> list[ExifTagsRequiredForUpload]:
         assert isinstance(value, list)
         assert len(value) == 1
+        return value
+
+    @pydantic.validator("raw_data")
+    def check_sign_of_coordinates(
+        cls, value: list[ExifTagsRequiredForUpload]
+    ) -> list[ExifTagsRequiredForUpload]:
+        """
+            exiftool for some reason returns negative numbers for western and southern
+            hemispheres, which is against standard. We verify it still follows this way.
+        """
+        tags = value[0]
+        latitude_sign = {"N": 1, "S": -1}[tags.GPSLatitudeRef]
+        longitude_sign = {"E": 1, "W": -1}[tags.GPSLongitudeRef]
+        assert latitude_sign == math.copysign(1, tags.GPSLatitude)
+        assert longitude_sign == math.copysign(1, tags.GPSLongitude)
         return value
 
     @property
@@ -172,10 +190,8 @@ def create_panorama(
 
 def upload_panorama(path: str) -> str:
     exif_tags = get_image_tags(path)
-    latitude_sign = {"N": 1, "S": -1}[exif_tags.GPSLatitudeRef]
-    latitude = exif_tags.GPSLatitude * latitude_sign
-    longitude_sign = {"E": 1, "W": -1}[exif_tags.GPSLongitudeRef]
-    longitude = exif_tags.GPSLongitude * longitude_sign
+    latitude = exif_tags.GPSLatitude
+    longitude = exif_tags.GPSLongitude
     heading = exif_tags.PoseHeadingDegrees
     dt = datetime.datetime.strptime(exif_tags.GPSDateTime, "%Y:%m:%d %H:%M:%SZ")
     dt = dt.replace(tzinfo=datetime.timezone(datetime.timedelta()))
